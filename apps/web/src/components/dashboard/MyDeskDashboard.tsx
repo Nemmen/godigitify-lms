@@ -10,7 +10,11 @@ import { ActivityFeed } from "./ActivityFeed";
 import { EmployeeCallChart } from "./EmployeeCallChart";
 import { MyTargetProgress } from "./MyTargetProgress";
 import { CallLogModal } from "./CallLogModal";
-import { useMyCallStats, useMyFollowUps, useLeadsAtRisk } from "@/hooks/useDashboard";
+import {
+  useMyCallStats,
+  useMyFollowUps,
+  useLeadsAtRisk,
+} from "@/hooks/useDashboard";
 
 // Employee productivity dashboard — "what do I need to do right now," not
 // analytics. Deliberately has no period selector, no company/branch KPIs,
