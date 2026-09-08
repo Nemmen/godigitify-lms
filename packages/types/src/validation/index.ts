@@ -48,7 +48,11 @@ export type {
 } from "./lead";
 
 // Interaction
-export { CreateInteractionSchema, EditInteractionSchema } from "./interaction";
+export {
+  CreateInteractionSchema,
+  EditInteractionSchema,
+  CompleteMeetingSchema,
+} from "./interaction";
 export type {
   CreateInteractionInput,
   EditInteractionInput,

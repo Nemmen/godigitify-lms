@@ -57,7 +57,11 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
     setSelectedServices((prev) =>
       prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
     );
-    setErrors((prev) => { const n = { ...prev }; delete n["servicesSold"]; return n; });
+    setErrors((prev) => {
+      const n = { ...prev };
+      delete n["servicesSold"];
+      return n;
+    });
   }
 
   function addCustom() {
@@ -74,10 +78,14 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
   function validate() {
     const errs: Record<string, string> = {};
     const val = Number(dealValue);
-    if (!dealValue || isNaN(val) || val <= 0) errs["dealValue"] = "Enter a valid deal value greater than 0";
-    if (selectedServices.length === 0) errs["servicesSold"] = "Select at least one service";
-    if (!contractStartDate) errs["contractStartDate"] = "Contract start date is required";
-    if (!quotationLink.trim()) errs["quotationLink"] = "Quotation / proposal link is required";
+    if (!dealValue || isNaN(val) || val <= 0)
+      errs["dealValue"] = "Enter a valid deal value greater than 0";
+    if (selectedServices.length === 0)
+      errs["servicesSold"] = "Select at least one service";
+    if (!contractStartDate)
+      errs["contractStartDate"] = "Contract start date is required";
+    if (!quotationLink.trim())
+      errs["quotationLink"] = "Quotation / proposal link is required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -108,7 +116,11 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
             value={dealValue}
             onChange={(e) => {
               setDealValue(e.target.value);
-              setErrors((prev) => { const n = { ...prev }; delete n["dealValue"]; return n; });
+              setErrors((prev) => {
+                const n = { ...prev };
+                delete n["dealValue"];
+                return n;
+              });
             }}
             error={errors["dealValue"]}
             inputMode="numeric"
@@ -122,7 +134,11 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
             value={contractStartDate}
             onChange={(e) => {
               setContractStartDate(e.target.value);
-              setErrors((prev) => { const n = { ...prev }; delete n["contractStartDate"]; return n; });
+              setErrors((prev) => {
+                const n = { ...prev };
+                delete n["contractStartDate"];
+                return n;
+              });
             }}
             error={errors["contractStartDate"]}
           />
@@ -157,7 +173,12 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
             type="text"
             value={customService}
             onChange={(e) => setCustomService(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustom(); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addCustom();
+              }
+            }}
             placeholder="Add custom service..."
             className="flex-1 px-3 py-2 rounded-lg border border-surface-200 text-sm outline-none focus:border-primary"
           />
@@ -204,7 +225,11 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
         value={quotationLink}
         onChange={(e) => {
           setQuotationLink(e.target.value.trim());
-          setErrors((prev) => { const n = { ...prev }; delete n["quotationLink"]; return n; });
+          setErrors((prev) => {
+            const n = { ...prev };
+            delete n["quotationLink"];
+            return n;
+          });
         }}
         error={errors["quotationLink"]}
         helperText="Google Drive, Notion, or any shareable link"

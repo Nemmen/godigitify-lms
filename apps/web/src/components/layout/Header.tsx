@@ -78,9 +78,7 @@ export function Header({ onMenuClick }: Props) {
       </button>
 
       {/* Title */}
-      <h1 className="text-base font-semibold text-gray-900 flex-1">
-        {title}
-      </h1>
+      <h1 className="text-base font-semibold text-gray-900 flex-1">{title}</h1>
 
       {/* Right side */}
       <div className="flex items-center gap-3">
@@ -90,9 +88,7 @@ export function Header({ onMenuClick }: Props) {
         {/* User */}
         <Link href="/profile" className="flex items-center gap-2">
           <div className="hidden sm:block text-right">
-            <p className="text-xs font-semibold text-gray-800">
-              {user?.name}
-            </p>
+            <p className="text-xs font-semibold text-gray-800">{user?.name}</p>
             {roleBadge && (
               <Badge variant={roleBadge.variant} className="text-xs">
                 {roleBadge.label}

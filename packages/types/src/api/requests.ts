@@ -1,8 +1,4 @@
-import type {
-  InteractionType,
-  LeadStatus,
-  LeadPriority,
-} from "../enums";
+import type { InteractionType, LeadStatus, LeadPriority } from "../enums";
 
 // Auth
 export type LoginRequest = {

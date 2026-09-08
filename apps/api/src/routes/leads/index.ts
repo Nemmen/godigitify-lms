@@ -113,31 +113,87 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
       };
 
       if (!body.dealValue || body.dealValue <= 0) {
-        return reply.status(400).send({ success: false, error: { code: "INVALID_INPUT", message: "dealValue must be positive" } });
+        return reply
+          .status(400)
+          .send({
+            success: false,
+            error: {
+              code: "INVALID_INPUT",
+              message: "dealValue must be positive",
+            },
+          });
       }
       if (!Array.isArray(body.servicesSold) || body.servicesSold.length === 0) {
-        return reply.status(400).send({ success: false, error: { code: "INVALID_INPUT", message: "servicesSold must be a non-empty array" } });
+        return reply
+          .status(400)
+          .send({
+            success: false,
+            error: {
+              code: "INVALID_INPUT",
+              message: "servicesSold must be a non-empty array",
+            },
+          });
       }
       if (!body.contractStartDate) {
-        return reply.status(400).send({ success: false, error: { code: "INVALID_INPUT", message: "contractStartDate is required" } });
+        return reply
+          .status(400)
+          .send({
+            success: false,
+            error: {
+              code: "INVALID_INPUT",
+              message: "contractStartDate is required",
+            },
+          });
       }
       if (!body.quotationLink) {
-        return reply.status(400).send({ success: false, error: { code: "INVALID_INPUT", message: "quotationLink is required" } });
+        return reply
+          .status(400)
+          .send({
+            success: false,
+            error: {
+              code: "INVALID_INPUT",
+              message: "quotationLink is required",
+            },
+          });
       }
 
       const lead = await fastify.prisma.lead.findUnique({
         where: { id: leadId },
-        select: { id: true, assignedToId: true, createdById: true, branchId: true, status: true },
+        select: {
+          id: true,
+          assignedToId: true,
+          createdById: true,
+          branchId: true,
+          status: true,
+        },
       });
       if (!lead) {
-        return reply.status(404).send({ success: false, error: { code: "NOT_FOUND", message: "Lead not found" } });
+        return reply
+          .status(404)
+          .send({
+            success: false,
+            error: { code: "NOT_FOUND", message: "Lead not found" },
+          });
       }
 
-      if (!canUpdateLead(
-        { id: userId, role: role as Role, branchId: request.user.branchId },
-        { id: lead.id, assignedToId: lead.assignedToId ?? null, createdById: lead.createdById, branchId: lead.branchId, status: lead.status },
-      )) {
-        return reply.status(403).send({ success: false, error: { code: "FORBIDDEN", message: "Access denied" } });
+      if (
+        !canUpdateLead(
+          { id: userId, role: role as Role, branchId: request.user.branchId },
+          {
+            id: lead.id,
+            assignedToId: lead.assignedToId ?? null,
+            createdById: lead.createdById,
+            branchId: lead.branchId,
+            status: lead.status,
+          },
+        )
+      ) {
+        return reply
+          .status(403)
+          .send({
+            success: false,
+            error: { code: "FORBIDDEN", message: "Access denied" },
+          });
       }
 
       const deal = await fastify.prisma.clientDeal.upsert({
@@ -165,7 +221,11 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
         await fastify.prisma.$transaction(async (tx) => {
           await tx.lead.update({
             where: { id: leadId },
-            data: { status: LeadStatus.CLIENT, confirmedAt: new Date(), confirmedById: userId },
+            data: {
+              status: LeadStatus.CLIENT,
+              confirmedAt: new Date(),
+              confirmedById: userId,
+            },
           });
           await tx.interactionLog.create({
             data: {
@@ -194,12 +254,19 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
           leadId,
           userId,
           action: "CLIENT_DEAL_SAVED",
-          newValue: { dealValue: body.dealValue, servicesSold: body.servicesSold },
+          newValue: {
+            dealValue: body.dealValue,
+            servicesSold: body.servicesSold,
+          },
         },
       });
 
       await invalidateAnalyticsCache(fastify.redis);
-      await invalidateActivityCache(fastify.redis, request.user.branchId, userId);
+      await invalidateActivityCache(
+        fastify.redis,
+        request.user.branchId,
+        userId,
+      );
 
       return reply.status(200).send({ success: true, data: deal });
     },
@@ -228,16 +295,38 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
 
       const MAX_IMPORT_ROWS = 500;
       if (!Array.isArray(rows) || rows.length === 0) {
-        return reply.status(400).send({ success: false, error: { code: "INVALID_INPUT", message: "rows must be a non-empty array" } });
+        return reply
+          .status(400)
+          .send({
+            success: false,
+            error: {
+              code: "INVALID_INPUT",
+              message: "rows must be a non-empty array",
+            },
+          });
       }
       if (rows.length > MAX_IMPORT_ROWS) {
-        return reply.status(400).send({ success: false, error: { code: "TOO_MANY_ROWS", message: `Maximum ${MAX_IMPORT_ROWS} rows per import. Split into smaller batches.` } });
+        return reply
+          .status(400)
+          .send({
+            success: false,
+            error: {
+              code: "TOO_MANY_ROWS",
+              message: `Maximum ${MAX_IMPORT_ROWS} rows per import. Split into smaller batches.`,
+            },
+          });
       }
 
       function normalizeImportPhone(raw: string): string | null {
         const digits = String(raw ?? "").replace(/\D/g, "");
-        const fromFloat = digits.length < 5 ? String(Math.round(Number(raw))).replace(/\D/g, "") : digits;
-        const candidate = fromFloat.startsWith("91") && fromFloat.length === 12 ? fromFloat.slice(2) : fromFloat;
+        const fromFloat =
+          digits.length < 5
+            ? String(Math.round(Number(raw))).replace(/\D/g, "")
+            : digits;
+        const candidate =
+          fromFloat.startsWith("91") && fromFloat.length === 12
+            ? fromFloat.slice(2)
+            : fromFloat;
         return /^[6-9]\d{9}$/.test(candidate) ? candidate : null;
       }
 
@@ -246,7 +335,9 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
       const allSources = await fastify.prisma.leadSourceType.findMany({
         select: { id: true, name: true },
       });
-      const sourceMap = new Map(allSources.map((s) => [s.name.toLowerCase().trim(), s.id]));
+      const sourceMap = new Map(
+        allSources.map((s) => [s.name.toLowerCase().trim(), s.id]),
+      );
 
       function resolveSourceId(name: string): string | undefined {
         const key = name.toLowerCase().trim();
@@ -266,10 +357,14 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
       const existingLeads = await fastify.prisma.lead.findMany({
         where: {
           OR: [
-            { phone: { in: normalizedRows.map((r) => r.phone).filter(Boolean) } },
+            {
+              phone: { in: normalizedRows.map((r) => r.phone).filter(Boolean) },
+            },
             {
               email: {
-                in: normalizedRows.map((r) => r.email).filter(Boolean) as string[],
+                in: normalizedRows
+                  .map((r) => r.email)
+                  .filter(Boolean) as string[],
                 mode: "insensitive",
               } as any,
             },
@@ -288,7 +383,10 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
       });
 
       const { processImportRows } = await import("@lms/core");
-      const result = processImportRows(normalizedRows as any, existingLeads as any);
+      const result = processImportRows(
+        normalizedRows as any,
+        existingLeads as any,
+      );
 
       const created = [];
       const importErrors: Array<{ rowIndex: number; reason: string }> = [];
@@ -296,12 +394,17 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
       for (const row of result.imported) {
         const phone = normalizeImportPhone(row.phone) ?? row.phone;
         if (!/^[6-9]\d{9}$/.test(phone)) {
-          importErrors.push({ rowIndex: row.rowIndex, reason: `Invalid phone number: ${row.phone}` });
+          importErrors.push({
+            rowIndex: row.rowIndex,
+            reason: `Invalid phone number: ${row.phone}`,
+          });
           continue;
         }
 
         try {
-          const sourceId = row.source ? (resolveSourceId(row.source) ?? null) : null;
+          const sourceId = row.source
+            ? (resolveSourceId(row.source) ?? null)
+            : null;
           const isProfileComplete = !!(row.instagramUrl && row.websiteUrl);
 
           const lead = await fastify.prisma.lead.create({

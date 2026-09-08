@@ -59,7 +59,9 @@ export function StatusTransition({
         >
           <Handshake size={15} className="text-purple-500 mt-0.5 shrink-0" />
           <div>
-            <p className="text-xs font-semibold text-purple-700">Ready to close?</p>
+            <p className="text-xs font-semibold text-purple-700">
+              Ready to close?
+            </p>
             <p className="text-xs text-purple-600 mt-0.5 leading-relaxed">
               Fill the{" "}
               <span className="font-semibold underline decoration-dotted group-hover:decoration-solid">

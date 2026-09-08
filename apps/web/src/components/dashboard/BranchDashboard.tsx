@@ -30,13 +30,21 @@ import { formatRupees } from "@/lib/format";
 // branchId (if any) the frontend sends — SUB_ADMIN can't override it.
 function BranchDashboardContent() {
   const { period, branchId } = useAnalyticsFilters();
-  const { data: overview, isLoading: overviewLoading } = useDashboardOverview(period, branchId);
-  const { data: clients, isLoading: clientsLoading } = useClientsReport(period, branchId);
+  const { data: overview, isLoading: overviewLoading } = useDashboardOverview(
+    period,
+    branchId,
+  );
+  const { data: clients, isLoading: clientsLoading } = useClientsReport(
+    period,
+    branchId,
+  );
   const { data: atRisk } = useLeadsAtRisk(branchId ? { branchId } : undefined);
 
-  const summary = (overview as { summary?: Record<string, number> } | undefined)?.summary;
-  const revenue = (clients as { summary?: { totalDealValue?: number } } | undefined)?.summary
-    ?.totalDealValue;
+  const summary = (overview as { summary?: Record<string, number> } | undefined)
+    ?.summary;
+  const revenue = (
+    clients as { summary?: { totalDealValue?: number } } | undefined
+  )?.summary?.totalDealValue;
 
   return (
     <div className="space-y-6">

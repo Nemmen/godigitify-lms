@@ -175,7 +175,8 @@ export default function LeadsPage() {
     setFilters((prev) => ({
       ...prev,
       sortBy: field,
-      sortOrder: prev.sortBy === field && prev.sortOrder === "asc" ? "desc" : "asc",
+      sortOrder:
+        prev.sortBy === field && prev.sortOrder === "asc" ? "desc" : "asc",
       page: 1,
     }));
   }
@@ -523,7 +524,11 @@ function LeadTableWithBulk({
 
   // Only fields the backend actually supports sorting by
   // (apps/api/src/routes/leads/list.ts SORT_FIELDS) get a clickable header.
-  const columns: Array<{ label: string; sortKey?: string; managerOnly?: boolean }> = [
+  const columns: Array<{
+    label: string;
+    sortKey?: string;
+    managerOnly?: boolean;
+  }> = [
     { label: "Lead", sortKey: "name" },
     { label: "Status", sortKey: "status" },
     { label: "Industry" },
@@ -559,7 +564,8 @@ function LeadTableWithBulk({
                     onClick={() => col.sortKey && onSortChange(col.sortKey)}
                     className={cn(
                       "px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide",
-                      col.sortKey && "cursor-pointer hover:text-gray-700 select-none",
+                      col.sortKey &&
+                        "cursor-pointer hover:text-gray-700 select-none",
                     )}
                   >
                     <div className="flex items-center gap-1">
@@ -609,17 +615,21 @@ function LeadTableWithBulk({
                         <p className="text-sm font-semibold text-gray-900 hover:text-primary">
                           {lead.name ?? lead.phone}
                         </p>
-                        {typeof lead.leadScore === "number" && lead.leadScore >= 70 && (
-                          <span
-                            title={`Hot lead — score ${lead.leadScore}`}
-                            className="text-[10px] bg-green-50 text-green-700 border border-green-200 px-1.5 py-0.5 rounded-full font-medium"
-                          >
-                            🔥 {lead.leadScore}
-                          </span>
-                        )}
+                        {typeof lead.leadScore === "number" &&
+                          lead.leadScore >= 70 && (
+                            <span
+                              title={`Hot lead — score ${lead.leadScore}`}
+                              className="text-[10px] bg-green-50 text-green-700 border border-green-200 px-1.5 py-0.5 rounded-full font-medium"
+                            >
+                              🔥 {lead.leadScore}
+                            </span>
+                          )}
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {formatPhone(lead.phoneCountryCode ?? DEFAULT_DIAL_CODE, lead.phone)}
+                        {formatPhone(
+                          lead.phoneCountryCode ?? DEFAULT_DIAL_CODE,
+                          lead.phone,
+                        )}
                       </p>
                     </Link>
                   </td>

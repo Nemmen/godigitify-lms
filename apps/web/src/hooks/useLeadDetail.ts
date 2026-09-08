@@ -58,6 +58,29 @@ export function useAddInteraction(leadId: string) {
   });
 }
 
+export function useCompleteMeeting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: {
+      id: string;
+      nextFollowUpAt?: string;
+      note?: string;
+    }) => {
+      await api.post(`/interactions/${params.id}/complete-meeting`, {
+        ...(params.nextFollowUpAt && { nextFollowUpAt: params.nextFollowUpAt }),
+        ...(params.note?.trim() && { note: params.note.trim() }),
+      });
+    },
+    onSuccess: () => {
+      toast.success("Meeting marked as done");
+      void qc.invalidateQueries({ queryKey: ["meetings", "dashboard"] });
+      void qc.invalidateQueries({ queryKey: ["leads", "followups"] });
+      void qc.invalidateQueries({ queryKey: ["leads"] });
+    },
+    onError: () => toast.error("Failed to complete meeting"),
+  });
+}
+
 // ── Edit interaction ──
 export function useEditInteraction() {
   const qc = useQueryClient();
@@ -81,10 +104,7 @@ export function useEditInteraction() {
 export function useTransitionLead(leadId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (params: {
-      toStatus: LeadStatus;
-      note?: string;
-    }) => {
+    mutationFn: async (params: { toStatus: LeadStatus; note?: string }) => {
       await api.post(`/leads/${leadId}/transition`, params);
     },
     onSuccess: () => {
@@ -159,10 +179,13 @@ export function useIntelBrief(leadId: string) {
     queryKey: ["intel-brief", leadId],
     queryFn: async () => {
       try {
-        const { data } = await api.get<IntelBriefResponse>(`/leads/${leadId}/intel-brief`);
+        const { data } = await api.get<IntelBriefResponse>(
+          `/leads/${leadId}/intel-brief`,
+        );
         return data.data;
       } catch (err: unknown) {
-        const status = (err as { response?: { status?: number } })?.response?.status;
+        const status = (err as { response?: { status?: number } })?.response
+          ?.status;
         if (status === 404) return null;
         throw err;
       }

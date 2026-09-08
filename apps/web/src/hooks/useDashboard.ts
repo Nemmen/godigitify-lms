@@ -74,7 +74,9 @@ export function useFollowUpCompliance(branchId?: string, enabled = true) {
     queryKey: ["analytics", "follow-ups", branchId],
     queryFn: async () => {
       const params = branchId ? `?branchId=${branchId}` : "";
-      const { data } = await api.get<ApiResponse>(`/analytics/follow-ups${params}`);
+      const { data } = await api.get<ApiResponse>(
+        `/analytics/follow-ups${params}`,
+      );
       return data.data;
     },
     refetchInterval: 5 * 60_000,
@@ -89,9 +91,7 @@ export function useTrend(period: Period, branchId?: string) {
     queryFn: async () => {
       const params = new URLSearchParams({ period });
       if (branchId) params.set("branchId", branchId);
-      const { data } = await api.get<ApiResponse>(
-        `/analytics/trend?${params}`,
-      );
+      const { data } = await api.get<ApiResponse>(`/analytics/trend?${params}`);
       return data.data;
     },
     staleTime: 5 * 60_000,
@@ -125,7 +125,11 @@ export function useLeadsAtRisk(params?: {
       if (params?.assignedToId) search.set("assignedToId", params.assignedToId);
       if (params?.staleDays) search.set("staleDays", String(params.staleDays));
       const { data } = await api.get<
-        ApiResponse<{ staleDays: number; totalAtRisk: number; leads: LeadAtRisk[] }>
+        ApiResponse<{
+          staleDays: number;
+          totalAtRisk: number;
+          leads: LeadAtRisk[];
+        }>
       >(`/analytics/leads-at-risk?${search}`);
       return data.data;
     },
@@ -134,7 +138,13 @@ export function useLeadsAtRisk(params?: {
 }
 
 // ── Weighted revenue forecast ──
-export type StageForecast = { status: string; count: number; value: number; weighted: number; probability: number };
+export type StageForecast = {
+  status: string;
+  count: number;
+  value: number;
+  weighted: number;
+  probability: number;
+};
 export type RevenueForecast = {
   pipelineValue: number;
   weightedForecast: number;
@@ -146,7 +156,9 @@ export function useRevenueForecast(branchId?: string) {
     queryKey: ["analytics", "revenue", branchId],
     queryFn: async () => {
       const params = branchId ? `?branchId=${branchId}` : "";
-      const { data } = await api.get<ApiResponse<RevenueForecast>>(`/analytics/revenue${params}`);
+      const { data } = await api.get<ApiResponse<RevenueForecast>>(
+        `/analytics/revenue${params}`,
+      );
       return data.data;
     },
     staleTime: 5 * 60_000,
@@ -169,9 +181,9 @@ export function useBranchComparison(period: Period) {
   return useQuery({
     queryKey: ["analytics", "branches", period],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<{ branches: BranchComparisonRow[] }>>(
-        `/analytics/branches?period=${period}`,
-      );
+      const { data } = await api.get<
+        ApiResponse<{ branches: BranchComparisonRow[] }>
+      >(`/analytics/branches?period=${period}`);
       return data.data;
     },
     staleTime: 5 * 60_000,
@@ -180,7 +192,12 @@ export function useBranchComparison(period: Period) {
 
 // ── Campaign performance — revenue/ROI per campaign ──
 export type CampaignPerformanceRow = {
-  campaign: { id: string; name: string; isActive: boolean; spend: number | null };
+  campaign: {
+    id: string;
+    name: string;
+    isActive: boolean;
+    spend: number | null;
+  };
   source: { id: string; name: string };
   totalLeads: number;
   confirmed: number;
@@ -193,9 +210,9 @@ export function useCampaignPerformance(branchId?: string) {
     queryKey: ["analytics", "campaigns", branchId],
     queryFn: async () => {
       const params = branchId ? `?branchId=${branchId}` : "";
-      const { data } = await api.get<ApiResponse<{ campaigns: CampaignPerformanceRow[] }>>(
-        `/analytics/campaigns${params}`,
-      );
+      const { data } = await api.get<
+        ApiResponse<{ campaigns: CampaignPerformanceRow[] }>
+      >(`/analytics/campaigns${params}`);
       return data.data;
     },
     staleTime: 5 * 60_000,
@@ -208,7 +225,9 @@ export function useWorkloadBalance(branchId?: string) {
     queryKey: ["analytics", "workload", branchId],
     queryFn: async () => {
       const params = branchId ? `?branchId=${branchId}` : "";
-      const { data } = await api.get<ApiResponse>(`/analytics/workload${params}`);
+      const { data } = await api.get<ApiResponse>(
+        `/analytics/workload${params}`,
+      );
       return data.data;
     },
     staleTime: 5 * 60_000,
@@ -221,7 +240,9 @@ export function useClientsAtRisk(branchId?: string) {
     queryKey: ["analytics", "clients-at-risk", branchId],
     queryFn: async () => {
       const params = branchId ? `?branchId=${branchId}` : "";
-      const { data } = await api.get<ApiResponse>(`/analytics/clients-at-risk${params}`);
+      const { data } = await api.get<ApiResponse>(
+        `/analytics/clients-at-risk${params}`,
+      );
       return data.data;
     },
     staleTime: 5 * 60_000,
@@ -244,7 +265,11 @@ export function useEmployeeDetail(employeeId: string, period: Period) {
 }
 
 // ── My own performance — any role, no ADMIN/SUB_ADMIN guard on the API side ──
-export function useMyPerformance(period: Period, dateFrom?: string, dateTo?: string) {
+export function useMyPerformance(
+  period: Period,
+  dateFrom?: string,
+  dateTo?: string,
+) {
   return useQuery({
     queryKey: ["analytics", "me", period, dateFrom, dateTo],
     queryFn: async () => {
@@ -260,14 +285,18 @@ export function useMyPerformance(period: Period, dateFrom?: string, dateTo?: str
 
 // ── My target for a given metric/period (e.g. "2026-07") — empty until an
 // ADMIN/SUB_ADMIN has set one via /settings/targets ──
-export function useMyTarget(metric: "REVENUE" | "LEADS" | "CONVERSIONS", period: string) {
+export function useMyTarget(
+  metric: "REVENUE" | "LEADS" | "CONVERSIONS",
+  period: string,
+) {
   return useQuery({
     queryKey: ["targets", "me", metric, period],
     queryFn: async () => {
       const params = new URLSearchParams({ scope: "EMPLOYEE", metric, period });
-      const { data } = await api.get<{ success: true; data: { targets: Array<{ value: string }> } }>(
-        `/targets?${params}`,
-      );
+      const { data } = await api.get<{
+        success: true;
+        data: { targets: Array<{ value: string }> };
+      }>(`/targets?${params}`);
       return data.data.targets[0] ?? null;
     },
     staleTime: 5 * 60_000,
@@ -305,6 +334,7 @@ export function useMyFollowUps() {
 export type ScheduledMeeting = {
   id: string;
   scheduledAt: string;
+  completedAt: string | null;
   lead: {
     id: string;
     name: string | null;
@@ -317,9 +347,13 @@ export function useMyMeetings() {
   return useQuery({
     queryKey: ["meetings", "dashboard"],
     queryFn: async () => {
-      const { data } = await api.get<
-        ApiResponse<{ overdue: ScheduledMeeting[]; upcoming: ScheduledMeeting[] }>
-      >("/leads/meetings");
+      const { data } =
+        await api.get<
+          ApiResponse<{
+            overdue: ScheduledMeeting[];
+            upcoming: ScheduledMeeting[];
+          }>
+        >("/leads/meetings");
       return data.data;
     },
     refetchInterval: 60_000,
@@ -327,7 +361,11 @@ export function useMyMeetings() {
 }
 
 // ── Employee call stats (today's calls, minutes, 7-day daily breakdown) ──
-export type DailyCallStat = { date: string; callCount: number; totalMinutes: number };
+export type DailyCallStat = {
+  date: string;
+  callCount: number;
+  totalMinutes: number;
+};
 export type MyCallStats = {
   callsToday: number;
   minutesToday: number;
@@ -341,7 +379,8 @@ export function useMyCallStats() {
   return useQuery({
     queryKey: ["me", "call-stats"],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<MyCallStats>>(`/me/call-stats`);
+      const { data } =
+        await api.get<ApiResponse<MyCallStats>>(`/me/call-stats`);
       return data.data as MyCallStats;
     },
     refetchInterval: 60_000,
@@ -378,7 +417,11 @@ export function useEmployeeCallLog(
   return useQuery({
     queryKey: ["analytics", "employee-calls", employeeId, period, page],
     queryFn: async () => {
-      const params = new URLSearchParams({ period, page: String(page), pageSize: "20" });
+      const params = new URLSearchParams({
+        period,
+        page: String(page),
+        pageSize: "20",
+      });
       const { data } = await api.get<ApiResponse<CallLogResponse>>(
         `/analytics/employees/${employeeId}/calls?${params}`,
       );
@@ -393,7 +436,11 @@ export function useMyCallLog(period: Period, page: number, enabled = true) {
   return useQuery({
     queryKey: ["analytics", "me-calls", period, page],
     queryFn: async () => {
-      const params = new URLSearchParams({ period, page: String(page), pageSize: "20" });
+      const params = new URLSearchParams({
+        period,
+        page: String(page),
+        pageSize: "20",
+      });
       const { data } = await api.get<ApiResponse<CallLogResponse>>(
         `/analytics/me/calls?${params}`,
       );
@@ -407,7 +454,12 @@ export function useMyCallLog(period: Period, page: number, enabled = true) {
 // ── Leads behind an employee's "leads interacted" count — one row per ──
 // unique lead, so the list total always matches the stat card.
 export type InteractedLeadEntry = {
-  lead: { id: string; name: string | null; phone: string; status: string } | null;
+  lead: {
+    id: string;
+    name: string | null;
+    phone: string;
+    status: string;
+  } | null;
   lastInteractionAt: string;
   interactionCount: number;
   callCount: number;
@@ -427,9 +479,19 @@ export function useEmployeeInteractedLeads(
   enabled = true,
 ) {
   return useQuery({
-    queryKey: ["analytics", "employee-interacted-leads", employeeId, period, page],
+    queryKey: [
+      "analytics",
+      "employee-interacted-leads",
+      employeeId,
+      period,
+      page,
+    ],
     queryFn: async () => {
-      const params = new URLSearchParams({ period, page: String(page), pageSize: "20" });
+      const params = new URLSearchParams({
+        period,
+        page: String(page),
+        pageSize: "20",
+      });
       const { data } = await api.get<ApiResponse<InteractedLeadsResponse>>(
         `/analytics/employees/${employeeId}/interacted-leads?${params}`,
       );
@@ -440,11 +502,19 @@ export function useEmployeeInteractedLeads(
   });
 }
 
-export function useMyInteractedLeads(period: Period, page: number, enabled = true) {
+export function useMyInteractedLeads(
+  period: Period,
+  page: number,
+  enabled = true,
+) {
   return useQuery({
     queryKey: ["analytics", "me-interacted-leads", period, page],
     queryFn: async () => {
-      const params = new URLSearchParams({ period, page: String(page), pageSize: "20" });
+      const params = new URLSearchParams({
+        period,
+        page: String(page),
+        pageSize: "20",
+      });
       const { data } = await api.get<ApiResponse<InteractedLeadsResponse>>(
         `/analytics/me/interacted-leads?${params}`,
       );

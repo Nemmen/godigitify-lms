@@ -14,6 +14,7 @@ import {
   AlertCircle,
   StickyNote,
   Clock,
+  Check,
 } from "lucide-react";
 import { InteractionType, Role } from "@lms/types";
 import { useEditInteraction } from "@/hooks/useLeadDetail";
@@ -31,6 +32,9 @@ type Interaction = {
   id: string;
   type: string;
   note: string | null;
+  scheduledAt?: Date | string | null;
+  completedAt?: Date | string | null;
+  completionNote?: string | null;
   callRecordingUrl: string | null;
   callDurationSecs: number | null;
   statusBefore: string | null;
@@ -189,6 +193,11 @@ function InteractionItem({
                   {formatDuration(interaction.callDurationSecs)}
                 </span>
               )}
+            {interaction.type === InteractionType.MEETING && interaction.completedAt && (
+              <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 font-medium">
+                <Check size={9} /> Completed
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <span
@@ -231,6 +240,11 @@ function InteractionItem({
         )}
 
         {/* Note */}
+        {interaction.completionNote && (
+          <p className="text-sm text-green-700 mt-1 leading-relaxed">
+            Outcome: {interaction.completionNote}
+          </p>
+        )}
         {editing ? (
           <div className="mt-2 space-y-2">
             <textarea

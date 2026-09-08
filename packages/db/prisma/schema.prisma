@@ -353,6 +353,9 @@ model InteractionLog {
 
   note String?
   scheduledAt DateTime?
+  completedAt DateTime?
+  completedById String?
+  completionNote String?
 
   callRecordingUrl String?
   callDurationSecs Int?
@@ -378,6 +381,7 @@ model InteractionLog {
   @@index([userId])
   @@index([createdAt])
   @@index([type])
+  @@index([completedAt])
   @@index([statusAfter])
   @@index([isDeleted])
 }

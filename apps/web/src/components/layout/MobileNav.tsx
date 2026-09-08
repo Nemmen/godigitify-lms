@@ -17,7 +17,10 @@ export function MobileNav() {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     {
       href: "/leads",
-      label: pathname === "/leads" && searchParams.get("status") === "CLIENT" ? "Clients" : "Leads",
+      label:
+        pathname === "/leads" && searchParams.get("status") === "CLIENT"
+          ? "Clients"
+          : "Leads",
       icon: Users,
     },
     ...(isManager

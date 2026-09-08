@@ -22,6 +22,8 @@ export function PeriodSelector({ value, onChange, compact }: Props) {
       {OPTIONS.map((opt) => (
         <button
           key={opt.value}
+          type="button"
+          aria-pressed={value === opt.value}
           onClick={() => onChange(opt.value)}
           className={cn(
             "px-3 py-1 rounded-md text-xs font-medium transition-colors",

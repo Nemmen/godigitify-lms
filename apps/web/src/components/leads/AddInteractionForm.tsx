@@ -1,9 +1,22 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Upload, X, Phone, MessageSquare, Mail, Users, Timer, Square } from "lucide-react";
+import {
+  Upload,
+  X,
+  Phone,
+  MessageSquare,
+  Mail,
+  Users,
+  Timer,
+  Square,
+} from "lucide-react";
 import { InteractionType } from "@lms/types";
-import { useAddInteraction, useUploadFile, useLeadInteractions } from "@/hooks/useLeadDetail";
+import {
+  useAddInteraction,
+  useUploadFile,
+  useLeadInteractions,
+} from "@/hooks/useLeadDetail";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 
@@ -15,7 +28,9 @@ const TYPES = [
 ];
 
 function formatTime(secs: number) {
-  const m = Math.floor(secs / 60).toString().padStart(2, "0");
+  const m = Math.floor(secs / 60)
+    .toString()
+    .padStart(2, "0");
   const s = (secs % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 }
@@ -52,13 +67,18 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
   const { data: interactionsData } = useLeadInteractions(leadId);
   const todayCallSecs = (interactionsData?.interactions ?? [])
     .filter(
-      (i: { type: string; callDurationSecs: number | null; createdAt: Date | string }) =>
+      (i: {
+        type: string;
+        callDurationSecs: number | null;
+        createdAt: Date | string;
+      }) =>
         i.type === "CALL" &&
         i.callDurationSecs != null &&
         dayjs(i.createdAt).isSame(dayjs(), "day"),
     )
     .reduce(
-      (sum: number, i: { callDurationSecs: number | null }) => sum + (i.callDurationSecs ?? 0),
+      (sum: number, i: { callDurationSecs: number | null }) =>
+        sum + (i.callDurationSecs ?? 0),
       0,
     );
 
@@ -74,7 +94,7 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
     if (type !== InteractionType.CALL && timerRunning) {
       stopTimer();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
   function startTimer() {
@@ -131,7 +151,8 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
   }
 
   async function handleSubmit() {
-    if (type !== InteractionType.MEETING && !note.trim() && !recordingUrl) return;
+    if (type !== InteractionType.MEETING && !note.trim() && !recordingUrl)
+      return;
     if (type === InteractionType.MEETING && !scheduledAt) return;
 
     if (timerRunning) stopTimer();
@@ -140,9 +161,10 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
     await addInteraction.mutateAsync({
       type,
       ...(note.trim() && { note: note.trim() }),
-      ...(type === InteractionType.MEETING && scheduledAt && {
-        scheduledAt: new Date(scheduledAt).toISOString(),
-      }),
+      ...(type === InteractionType.MEETING &&
+        scheduledAt && {
+          scheduledAt: new Date(scheduledAt).toISOString(),
+        }),
       ...(recordingUrl && { callRecordingUrl: recordingUrl }),
       ...(dur !== undefined && { callDurationSecs: dur }),
     });
@@ -194,7 +216,9 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
               // Running timer display
               <div className="flex items-center gap-2 flex-wrap">
                 {todayCallSecs > 0 && (
-                  <span className="text-xs text-gray-400">{formatDur(todayCallSecs)} +</span>
+                  <span className="text-xs text-gray-400">
+                    {formatDur(todayCallSecs)} +
+                  </span>
                 )}
                 <span className="font-mono text-sm font-semibold text-primary tabular-nums">
                   {formatTime(elapsedSecs)}
@@ -247,7 +271,8 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
                 </div>
                 {todayCallSecs > 0 && (getDurationSecs() ?? 0) > 0 && (
                   <span className="text-xs text-green-700 font-medium shrink-0">
-                    = {formatDur(todayCallSecs + (getDurationSecs() ?? 0))} today
+                    = {formatDur(todayCallSecs + (getDurationSecs() ?? 0))}{" "}
+                    today
                   </span>
                 )}
                 <button
@@ -346,7 +371,9 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
           type="submit"
           onClick={() => void handleSubmit()}
           disabled={
-            (type !== InteractionType.MEETING && !note.trim() && !recordingUrl) ||
+            (type !== InteractionType.MEETING &&
+              !note.trim() &&
+              !recordingUrl) ||
             (type === InteractionType.MEETING && !scheduledAt) ||
             addInteraction.isPending ||
             isUploading

@@ -12,6 +12,7 @@ import {
   Role,
   CreateInteractionSchema,
   EditInteractionSchema,
+  CompleteMeetingSchema,
 } from "@lms/types";
 import { validateBody } from "../../middleware/validate";
 import { dispatchInteractionNotification } from "../../services/notifications";
@@ -224,6 +225,9 @@ export async function interactionRoutes(
           type: true,
           note: true,
           scheduledAt: true,
+            completedAt: true,
+            completedById: true,
+            completionNote: true,
           callRecordingUrl: true,
           callDurationSecs: true,
           createdAt: true,
@@ -258,6 +262,80 @@ export async function interactionRoutes(
       await invalidateActivityCache(fastify.redis, branchId, userId);
 
       return reply.status(201).send({ success: true, data: interaction });
+    },
+  );
+
+  // ─────────────────────────────────────────
+  // POST /interactions/:id/complete-meeting
+  // Complete a scheduled meeting and optionally schedule the next follow-up.
+  // ─────────────────────────────────────────
+  fastify.post(
+    "/interactions/:id/complete-meeting",
+    { preHandler: authenticate },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const validation = validateBody(CompleteMeetingSchema, request.body);
+      if (!validation.success) {
+        return reply.status(400).send({ success: false, ...validation.error });
+      }
+
+      const interaction = await fastify.prisma.interactionLog.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          type: true,
+          completedAt: true,
+          leadId: true,
+          lead: { select: { branchId: true } },
+        },
+      });
+
+      if (!interaction) {
+        return reply.status(404).send({
+          success: false,
+          error: { code: "NOT_FOUND", message: "Meeting not found" },
+        });
+      }
+      if (interaction.type !== InteractionType.MEETING) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "INVALID_INPUT", message: "Only meetings can be completed" },
+        });
+      }
+      if (interaction.completedAt) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "ALREADY_COMPLETED", message: "Meeting is already completed" },
+        });
+      }
+      if (interaction.lead.branchId !== request.user.branchId && request.user.role !== Role.ADMIN) {
+        return reply.status(403).send({
+          success: false,
+          error: { code: "FORBIDDEN", message: "Access denied" },
+        });
+      }
+
+      const { nextFollowUpAt, note } = validation.data;
+      await fastify.prisma.$transaction([
+        fastify.prisma.interactionLog.update({
+          where: { id },
+          data: {
+            completedAt: new Date(),
+            completedById: request.user.id,
+            completionNote: note ?? null,
+          },
+        }),
+        fastify.prisma.lead.update({
+          where: { id: interaction.leadId },
+          data: { nextFollowUpAt: nextFollowUpAt ? new Date(nextFollowUpAt) : null },
+        }),
+      ]);
+
+      await invalidateActivityCache(fastify.redis, request.user.branchId, request.user.id);
+      return reply.status(200).send({
+        success: true,
+        data: { completedAt: new Date().toISOString(), nextFollowUpAt: nextFollowUpAt ?? null },
+      });
     },
   );
 
@@ -476,48 +554,52 @@ export async function interactionRoutes(
         todayStart.getTime() - 6 * 24 * 60 * 60 * 1000,
       );
 
-      const [callInteractions, allTodayInteractions, confirmedToday, newLeadsToday] =
-        await Promise.all([
-          // CALL interactions for the last 7 days (for the chart)
-          fastify.prisma.interactionLog.findMany({
-            where: {
-              userId,
-              type: "CALL",
-              isDeleted: false,
-              createdAt: { gte: sevenDaysAgo, lt: todayEnd },
-            },
-            select: { callDurationSecs: true, createdAt: true },
-            orderBy: { createdAt: "asc" },
-          }),
+      const [
+        callInteractions,
+        allTodayInteractions,
+        confirmedToday,
+        newLeadsToday,
+      ] = await Promise.all([
+        // CALL interactions for the last 7 days (for the chart)
+        fastify.prisma.interactionLog.findMany({
+          where: {
+            userId,
+            type: "CALL",
+            isDeleted: false,
+            createdAt: { gte: sevenDaysAgo, lt: todayEnd },
+          },
+          select: { callDurationSecs: true, createdAt: true },
+          orderBy: { createdAt: "asc" },
+        }),
 
-          // ALL interactions today (for leads-interacted count)
-          fastify.prisma.interactionLog.findMany({
-            where: {
-              userId,
-              isDeleted: false,
-              type: { not: "STATUS_CHANGED" },
-              createdAt: { gte: todayStart, lt: todayEnd },
-            },
-            select: { leadId: true },
-          }),
+        // ALL interactions today (for leads-interacted count)
+        fastify.prisma.interactionLog.findMany({
+          where: {
+            userId,
+            isDeleted: false,
+            type: { not: "STATUS_CHANGED" },
+            createdAt: { gte: todayStart, lt: todayEnd },
+          },
+          select: { leadId: true },
+        }),
 
-          // Leads confirmed today by this user
-          fastify.prisma.lead.count({
-            where: {
-              assignedToId: userId,
-              status: "CLIENT",
-              confirmedAt: { gte: todayStart, lt: todayEnd },
-            },
-          }),
+        // Leads confirmed today by this user
+        fastify.prisma.lead.count({
+          where: {
+            assignedToId: userId,
+            status: "CLIENT",
+            confirmedAt: { gte: todayStart, lt: todayEnd },
+          },
+        }),
 
-          // New leads assigned today
-          fastify.prisma.lead.count({
-            where: {
-              assignedToId: userId,
-              createdAt: { gte: todayStart, lt: todayEnd },
-            },
-          }),
-        ]);
+        // New leads assigned today
+        fastify.prisma.lead.count({
+          where: {
+            assignedToId: userId,
+            createdAt: { gte: todayStart, lt: todayEnd },
+          },
+        }),
+      ]);
 
       // Build daily buckets for the last 7 days
       const dailyMap = new Map<

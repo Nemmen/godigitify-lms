@@ -116,7 +116,10 @@ export function FollowUpsDueToday() {
       {isLoading ? (
         <div className="space-y-3 h-80 overflow-hidden">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-14 bg-surface-100 rounded-lg animate-pulse" />
+            <div
+              key={i}
+              className="h-14 bg-surface-100 rounded-lg animate-pulse"
+            />
           ))}
         </div>
       ) : totalCount === 0 ? (
