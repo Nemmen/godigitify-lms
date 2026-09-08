@@ -11,6 +11,7 @@ import { WorkloadChart } from "./WorkloadChart";
 import { StalledLeadsList } from "./StalledLeadsList";
 import { ClientsAtRiskList } from "./ClientsAtRiskList";
 import { FollowUpComplianceSummary } from "./FollowUpComplianceSummary";
+import { FollowUpsDueToday } from "./FollowUpsDueToday";
 import { MeetingFollowUps } from "./MeetingFollowUps";
 import {
   useDashboardOverview,
@@ -92,6 +93,9 @@ function BranchDashboardContent() {
 
       {/* Scheduled meetings */}
       <MeetingFollowUps />
+
+      {/* Follow-ups */}
+      <FollowUpsDueToday />
 
       {/* My Team */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

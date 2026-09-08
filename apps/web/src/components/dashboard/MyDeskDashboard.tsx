@@ -5,6 +5,7 @@ import { Phone, Clock, Flame } from "lucide-react";
 import { StatCard } from "./StatCard";
 import { CallQueue } from "./CallQueue";
 import { FollowUpsDueToday } from "./FollowUpsDueToday";
+import { MeetingFollowUps } from "./MeetingFollowUps";
 import { ActivityFeed } from "./ActivityFeed";
 import { EmployeeCallChart } from "./EmployeeCallChart";
 import { MyTargetProgress } from "./MyTargetProgress";
@@ -61,21 +62,24 @@ export function MyDeskDashboard() {
         </div>
       </div>
 
+      {/* Scheduled meetings */}
+      <MeetingFollowUps />
+
+      {/* Follow-ups */}
+      <FollowUpsDueToday />
+
       {/* Call queue — who to call first */}
       <CallQueue />
 
       {/* Call activity chart */}
       <EmployeeCallChart />
 
-      {/* Follow-ups + activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <FollowUpsDueToday />
-        <div className="bg-white border border-surface-200 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-gray-800 mb-4">
-            My Recent Activity
-          </h3>
-          <ActivityFeed />
-        </div>
+      {/* Activity */}
+      <div className="bg-white border border-surface-200 rounded-xl p-5">
+        <h3 className="text-sm font-semibold text-gray-800 mb-4">
+          My Recent Activity
+        </h3>
+        <ActivityFeed />
       </div>
 
       <CallLogModal

@@ -128,6 +128,9 @@ function AdminDashboardContent() {
       {/* Scheduled meetings */}
       <MeetingFollowUps />
 
+      {/* Follow-ups */}
+      <FollowUpsDueToday />
+
       {/* Pipeline + Activity feed */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
@@ -136,13 +139,8 @@ function AdminDashboardContent() {
         <ActivityFeed />
       </div>
 
-      {/* Employee performance + Follow-ups */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <EmployeePerformanceTable />
-        </div>
-        <FollowUpsDueToday />
-      </div>
+      {/* Employee performance */}
+      <EmployeePerformanceTable />
 
       {/* Sources + Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
