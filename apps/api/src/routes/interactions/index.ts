@@ -225,9 +225,9 @@ export async function interactionRoutes(
           type: true,
           note: true,
           scheduledAt: true,
-            completedAt: true,
-            completedById: true,
-            completionNote: true,
+          completedAt: true,
+          completedById: true,
+          completionNote: true,
           callRecordingUrl: true,
           callDurationSecs: true,
           createdAt: true,
@@ -299,16 +299,25 @@ export async function interactionRoutes(
       if (interaction.type !== InteractionType.MEETING) {
         return reply.status(400).send({
           success: false,
-          error: { code: "INVALID_INPUT", message: "Only meetings can be completed" },
+          error: {
+            code: "INVALID_INPUT",
+            message: "Only meetings can be completed",
+          },
         });
       }
       if (interaction.completedAt) {
         return reply.status(400).send({
           success: false,
-          error: { code: "ALREADY_COMPLETED", message: "Meeting is already completed" },
+          error: {
+            code: "ALREADY_COMPLETED",
+            message: "Meeting is already completed",
+          },
         });
       }
-      if (interaction.lead.branchId !== request.user.branchId && request.user.role !== Role.ADMIN) {
+      if (
+        interaction.lead.branchId !== request.user.branchId &&
+        request.user.role !== Role.ADMIN
+      ) {
         return reply.status(403).send({
           success: false,
           error: { code: "FORBIDDEN", message: "Access denied" },
@@ -327,14 +336,23 @@ export async function interactionRoutes(
         }),
         fastify.prisma.lead.update({
           where: { id: interaction.leadId },
-          data: { nextFollowUpAt: nextFollowUpAt ? new Date(nextFollowUpAt) : null },
+          data: {
+            nextFollowUpAt: nextFollowUpAt ? new Date(nextFollowUpAt) : null,
+          },
         }),
       ]);
 
-      await invalidateActivityCache(fastify.redis, request.user.branchId, request.user.id);
+      await invalidateActivityCache(
+        fastify.redis,
+        request.user.branchId,
+        request.user.id,
+      );
       return reply.status(200).send({
         success: true,
-        data: { completedAt: new Date().toISOString(), nextFollowUpAt: nextFollowUpAt ?? null },
+        data: {
+          completedAt: new Date().toISOString(),
+          nextFollowUpAt: nextFollowUpAt ?? null,
+        },
       });
     },
   );

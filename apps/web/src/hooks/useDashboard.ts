@@ -347,13 +347,12 @@ export function useMyMeetings() {
   return useQuery({
     queryKey: ["meetings", "dashboard"],
     queryFn: async () => {
-      const { data } =
-        await api.get<
-          ApiResponse<{
-            overdue: ScheduledMeeting[];
-            upcoming: ScheduledMeeting[];
-          }>
-        >("/leads/meetings");
+      const { data } = await api.get<
+        ApiResponse<{
+          overdue: ScheduledMeeting[];
+          upcoming: ScheduledMeeting[];
+        }>
+      >("/leads/meetings");
       return data.data;
     },
     refetchInterval: 60_000,

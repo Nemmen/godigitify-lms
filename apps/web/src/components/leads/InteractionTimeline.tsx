@@ -118,12 +118,7 @@ function AudioPlayer({ url }: { url: string }) {
     <div className="mt-2 px-3 py-2 bg-surface-50 rounded-lg border border-surface-200">
       <p className="text-xs text-gray-500 mb-1.5">Call Recording</p>
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio
-        src={url}
-        controls
-        className="w-full h-8"
-        title="Call recording"
-      />
+      <audio src={url} controls className="w-full h-8" title="Call recording" />
     </div>
   );
 }
@@ -193,11 +188,12 @@ function InteractionItem({
                   {formatDuration(interaction.callDurationSecs)}
                 </span>
               )}
-            {interaction.type === InteractionType.MEETING && interaction.completedAt && (
-              <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 font-medium">
-                <Check size={9} /> Completed
-              </span>
-            )}
+            {interaction.type === InteractionType.MEETING &&
+              interaction.completedAt && (
+                <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 font-medium">
+                  <Check size={9} /> Completed
+                </span>
+              )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <span
@@ -347,10 +343,16 @@ export function InteractionTimeline({ interactions, leadId, remarks }: Props) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-700">Import Remark</span>
-              <span className="text-xs px-1.5 py-0.5 bg-amber-50 text-amber-600 rounded border border-amber-100">from Excel</span>
+              <span className="text-xs font-semibold text-gray-700">
+                Import Remark
+              </span>
+              <span className="text-xs px-1.5 py-0.5 bg-amber-50 text-amber-600 rounded border border-amber-100">
+                from Excel
+              </span>
             </div>
-            <p className="text-sm text-gray-600 mt-1 leading-relaxed">{remarks}</p>
+            <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+              {remarks}
+            </p>
           </div>
         </div>
       )}

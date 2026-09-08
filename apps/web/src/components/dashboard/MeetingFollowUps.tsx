@@ -66,7 +66,8 @@ function MeetingRow({
 export function MeetingFollowUps() {
   const { data, isLoading } = useMyMeetings();
   const completeMeeting = useCompleteMeeting();
-  const [selectedMeeting, setSelectedMeeting] = useState<ScheduledMeeting | null>(null);
+  const [selectedMeeting, setSelectedMeeting] =
+    useState<ScheduledMeeting | null>(null);
   const [nextFollowUpAt, setNextFollowUpAt] = useState("");
   const [note, setNote] = useState("");
   const overdue = data?.overdue ?? [];
@@ -83,7 +84,9 @@ export function MeetingFollowUps() {
     if (!selectedMeeting) return;
     await completeMeeting.mutateAsync({
       id: selectedMeeting.id,
-      ...(nextFollowUpAt && { nextFollowUpAt: new Date(nextFollowUpAt).toISOString() }),
+      ...(nextFollowUpAt && {
+        nextFollowUpAt: new Date(nextFollowUpAt).toISOString(),
+      }),
       note,
     });
     setSelectedMeeting(null);
@@ -176,10 +179,19 @@ export function MeetingFollowUps() {
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-semibold text-gray-900">Complete meeting</h4>
-                <p className="text-xs text-gray-500 mt-1">{selectedMeeting.lead.name ?? selectedMeeting.lead.phone}</p>
+                <h4 className="font-semibold text-gray-900">
+                  Complete meeting
+                </h4>
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedMeeting.lead.name ?? selectedMeeting.lead.phone}
+                </p>
               </div>
-              <button type="button" onClick={() => setSelectedMeeting(null)} className="p-1 text-gray-400 hover:text-gray-700" aria-label="Close">
+              <button
+                type="button"
+                onClick={() => setSelectedMeeting(null)}
+                className="p-1 text-gray-400 hover:text-gray-700"
+                aria-label="Close"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -190,7 +202,9 @@ export function MeetingFollowUps() {
               className="w-full min-h-20 rounded-lg border border-surface-200 p-2 text-sm outline-none focus:border-primary"
             />
             <div>
-              <label className="text-xs font-medium text-gray-600">Next follow-up (optional)</label>
+              <label className="text-xs font-medium text-gray-600">
+                Next follow-up (optional)
+              </label>
               <input
                 type="datetime-local"
                 value={nextFollowUpAt}
@@ -200,8 +214,19 @@ export function MeetingFollowUps() {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setSelectedMeeting(null)} className="px-3 py-2 rounded-lg border border-surface-200 text-sm text-gray-600">Cancel</button>
-              <button type="button" onClick={() => void submitComplete()} disabled={completeMeeting.isPending} className="px-3 py-2 rounded-lg bg-green-600 text-white text-sm font-medium disabled:opacity-50">
+              <button
+                type="button"
+                onClick={() => setSelectedMeeting(null)}
+                className="px-3 py-2 rounded-lg border border-surface-200 text-sm text-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void submitComplete()}
+                disabled={completeMeeting.isPending}
+                className="px-3 py-2 rounded-lg bg-green-600 text-white text-sm font-medium disabled:opacity-50"
+              >
                 {completeMeeting.isPending ? "Saving..." : "Mark done"}
               </button>
             </div>
