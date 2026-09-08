@@ -16,6 +16,7 @@ export type InteractionLog = {
   user: UserSummary
   type: InteractionType
   note: string | null
+  scheduledAt: Date | null
   callRecordingUrl: string | null
   callDurationSecs: number | null
   callDirection: string | null

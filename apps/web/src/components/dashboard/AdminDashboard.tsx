@@ -13,6 +13,7 @@ import { PipelineChart } from "./PipelineChart";
 import { ActivityFeed } from "./ActivityFeed";
 import { EmployeePerformanceTable } from "./EmployeePerformanceTable";
 import { FollowUpsDueToday } from "./FollowUpsDueToday";
+import { MeetingFollowUps } from "./MeetingFollowUps";
 import { LeadSourcesChart } from "./LeadSourcesChart";
 import { TrendChart } from "./TrendChart";
 import { GlobalFilterBar } from "./GlobalFilterBar";
@@ -63,7 +64,6 @@ function AdminDashboardContent() {
         <StatCard
           title="Total Leads"
           value={summary?.totalLeadsInPeriod ?? 0}
-          subtitle="vs last period"
           icon={<Users size={16} className="text-red-600" />}
           colorVariant="red"
           loading={isLoading}
@@ -124,6 +124,9 @@ function AdminDashboardContent() {
           href={`/leads?assignedToId=unassigned&excludeStatus=CLIENT,DUPLICATE,LOST${branchParam}`}
         />
       </div>
+
+      {/* Scheduled meetings */}
+      <MeetingFollowUps />
 
       {/* Pipeline + Activity feed */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

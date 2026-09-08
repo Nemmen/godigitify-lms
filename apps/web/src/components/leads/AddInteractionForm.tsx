@@ -31,6 +31,7 @@ function formatDur(secs: number): string {
 export function AddInteractionForm({ leadId }: { leadId: string }) {
   const [type, setType] = useState<InteractionType>(InteractionType.NOTE);
   const [note, setNote] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
   const [recording, setRecording] = useState<File | null>(null);
   const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -130,7 +131,8 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
   }
 
   async function handleSubmit() {
-    if (!note.trim() && !recordingUrl) return;
+    if (type !== InteractionType.MEETING && !note.trim() && !recordingUrl) return;
+    if (type === InteractionType.MEETING && !scheduledAt) return;
 
     if (timerRunning) stopTimer();
 
@@ -138,11 +140,15 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
     await addInteraction.mutateAsync({
       type,
       ...(note.trim() && { note: note.trim() }),
+      ...(type === InteractionType.MEETING && scheduledAt && {
+        scheduledAt: new Date(scheduledAt).toISOString(),
+      }),
       ...(recordingUrl && { callRecordingUrl: recordingUrl }),
       ...(dur !== undefined && { callDurationSecs: dur }),
     });
 
     setNote("");
+    setScheduledAt("");
     setRecording(null);
     setRecordingUrl(null);
     resetTimer();
@@ -258,6 +264,22 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
         </div>
       )}
 
+      {type === InteractionType.MEETING && (
+        <label className="block space-y-1">
+          <span className="text-xs font-medium text-gray-600">
+            Meeting date &amp; time <span className="text-red-500">*</span>
+          </span>
+          <input
+            type="datetime-local"
+            value={scheduledAt}
+            min={dayjs().format("YYYY-MM-DDTHH:mm")}
+            onChange={(e) => setScheduledAt(e.target.value)}
+            className="w-full px-3 py-2.5 rounded-lg border border-surface-200 text-sm outline-none focus:border-primary"
+            required
+          />
+        </label>
+      )}
+
       {/* Note input */}
       <textarea
         title="Add interaction note"
@@ -324,7 +346,8 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
           type="submit"
           onClick={() => void handleSubmit()}
           disabled={
-            (!note.trim() && !recordingUrl) ||
+            (type !== InteractionType.MEETING && !note.trim() && !recordingUrl) ||
+            (type === InteractionType.MEETING && !scheduledAt) ||
             addInteraction.isPending ||
             isUploading
           }

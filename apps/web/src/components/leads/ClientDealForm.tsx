@@ -77,6 +77,7 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
     if (!dealValue || isNaN(val) || val <= 0) errs["dealValue"] = "Enter a valid deal value greater than 0";
     if (selectedServices.length === 0) errs["servicesSold"] = "Select at least one service";
     if (!contractStartDate) errs["contractStartDate"] = "Contract start date is required";
+    if (!quotationLink.trim()) errs["quotationLink"] = "Quotation / proposal link is required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -197,10 +198,15 @@ export function ClientDealForm({ leadId, existing, onSuccess }: Props) {
 
       <Input
         label="Quotation / Proposal Link"
+        required
         type="url"
         placeholder="https://drive.google.com/..."
         value={quotationLink}
-        onChange={(e) => setQuotationLink(e.target.value.trim())}
+        onChange={(e) => {
+          setQuotationLink(e.target.value.trim());
+          setErrors((prev) => { const n = { ...prev }; delete n["quotationLink"]; return n; });
+        }}
+        error={errors["quotationLink"]}
         helperText="Google Drive, Notion, or any shareable link"
       />
 

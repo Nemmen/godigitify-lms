@@ -108,6 +108,7 @@ export default function LeadsPage() {
 
   const { data, isLoading, isFetching, refetch } = useLeadList(filters);
   const { data: employees } = useEmployeeList();
+  const isClientsView = filters.status === LeadStatus.CLIENT;
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -191,9 +192,13 @@ export default function LeadsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Leads</h1>
+          <h1 className="text-xl font-bold text-gray-900">
+            {isClientsView ? "Clients" : "Leads"}
+          </h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {data ? `${data.total} total leads` : "Loading..."}
+            {data
+              ? `${data.total} total ${isClientsView ? "clients" : "leads"}`
+              : "Loading..."}
             {isFetching && !isLoading && (
               <span className="ml-2 text-xs text-gray-400">
                 · Refreshing...

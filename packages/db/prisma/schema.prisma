@@ -352,6 +352,7 @@ model InteractionLog {
   type   InteractionType
 
   note String?
+  scheduledAt DateTime?
 
   callRecordingUrl String?
   callDurationSecs Int?

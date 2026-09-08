@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { LayoutDashboard, Users, BarChart3, User } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { Role } from "@lms/types";
@@ -9,12 +9,17 @@ import { cn } from "@/lib/utils";
 
 export function MobileNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const isManager = user?.role === Role.ADMIN || user?.role === Role.SUB_ADMIN;
 
   const tabs = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/leads", label: "Leads", icon: Users },
+    {
+      href: "/leads",
+      label: pathname === "/leads" && searchParams.get("status") === "CLIENT" ? "Clients" : "Leads",
+      icon: Users,
+    },
     ...(isManager
       ? [{ href: "/analytics", label: "Analytics", icon: BarChart3 }]
       : []),

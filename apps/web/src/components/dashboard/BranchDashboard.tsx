@@ -11,6 +11,7 @@ import { WorkloadChart } from "./WorkloadChart";
 import { StalledLeadsList } from "./StalledLeadsList";
 import { ClientsAtRiskList } from "./ClientsAtRiskList";
 import { FollowUpComplianceSummary } from "./FollowUpComplianceSummary";
+import { MeetingFollowUps } from "./MeetingFollowUps";
 import {
   useDashboardOverview,
   useClientsReport,
@@ -80,6 +81,9 @@ function BranchDashboardContent() {
           href="/leads?overdue=true"
         />
       </div>
+
+      {/* Scheduled meetings */}
+      <MeetingFollowUps />
 
       {/* My Team */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

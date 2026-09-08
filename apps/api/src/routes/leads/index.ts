@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { authenticate } from "../../middleware/authenticate";
 import { authorize } from "../../middleware/authorize";
 import { canUpdateLead } from "@lms/auth";
-import { Role } from "@lms/types";
+import { LeadStatus, Role } from "@lms/types";
 import {
   DEFAULT_DIAL_CODE,
   isSupportedDialCode,
@@ -159,6 +159,35 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
         },
         include: { closedBy: { select: { id: true, name: true } } },
       });
+
+      // Saving the required deal details closes a proposal that is ready to become a client.
+      if (lead.status === LeadStatus.PROPOSAL_SENT) {
+        await fastify.prisma.$transaction(async (tx) => {
+          await tx.lead.update({
+            where: { id: leadId },
+            data: { status: LeadStatus.CLIENT, confirmedAt: new Date(), confirmedById: userId },
+          });
+          await tx.interactionLog.create({
+            data: {
+              leadId,
+              userId,
+              type: "STATUS_CHANGED",
+              statusBefore: LeadStatus.PROPOSAL_SENT,
+              statusAfter: LeadStatus.CLIENT,
+              note: "Client deal saved",
+            },
+          });
+          await tx.auditLog.create({
+            data: {
+              leadId,
+              userId,
+              action: "STATUS_CHANGED",
+              oldValue: { status: LeadStatus.PROPOSAL_SENT },
+              newValue: { status: LeadStatus.CLIENT },
+            },
+          });
+        });
+      }
 
       await fastify.prisma.auditLog.create({
         data: {

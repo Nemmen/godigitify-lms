@@ -302,6 +302,30 @@ export function useMyFollowUps() {
   });
 }
 
+export type ScheduledMeeting = {
+  id: string;
+  scheduledAt: string;
+  lead: {
+    id: string;
+    name: string | null;
+    phone: string;
+    status: string;
+  };
+};
+
+export function useMyMeetings() {
+  return useQuery({
+    queryKey: ["meetings", "dashboard"],
+    queryFn: async () => {
+      const { data } = await api.get<
+        ApiResponse<{ overdue: ScheduledMeeting[]; upcoming: ScheduledMeeting[] }>
+      >("/leads/meetings");
+      return data.data;
+    },
+    refetchInterval: 60_000,
+  });
+}
+
 // ── Employee call stats (today's calls, minutes, 7-day daily breakdown) ──
 export type DailyCallStat = { date: string; callCount: number; totalMinutes: number };
 export type MyCallStats = {

@@ -64,6 +64,7 @@ export type AssignLeadRequest = {
 export type CreateInteractionRequest = {
   type: InteractionType;
   note?: string;
+  scheduledAt?: string;
   callRecordingUrl?: string;
   callDurationSecs?: number;
 };

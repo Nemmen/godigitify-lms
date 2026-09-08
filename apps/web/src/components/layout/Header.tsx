@@ -3,7 +3,7 @@
 import { Menu } from "lucide-react";
 import type { ComponentProps } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { getInitials } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
@@ -41,6 +41,7 @@ type Props = {
 
 export function Header({ onMenuClick }: Props) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
 
   // Exact match first (covers every registered route), then fall back to
@@ -48,7 +49,9 @@ export function Header({ onMenuClick }: Props) {
   // /reports/[id]) inherit their section's title instead of dropping to
   // a generic "CRM" placeholder.
   const title =
-    PAGE_TITLES[pathname] ??
+    (pathname === "/leads" && searchParams.get("status") === "CLIENT"
+      ? "Clients"
+      : PAGE_TITLES[pathname]) ??
     (pathname.startsWith("/analytics")
       ? "Analytics"
       : pathname.startsWith("/reports")

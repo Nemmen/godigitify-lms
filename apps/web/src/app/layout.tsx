@@ -13,9 +13,9 @@ export const metadata: Metadata = {
   description:
     "Track, manage, and convert leads across all your campaigns and channels.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo_icon.jpg",
+    shortcut: "/logo_icon.jpg",
+    apple: "/logo_icon.jpg",
   },
 };
 

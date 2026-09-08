@@ -43,6 +43,7 @@ export function useAddInteraction(leadId: string) {
     mutationFn: async (body: {
       type: string;
       note?: string;
+      scheduledAt?: string;
       callRecordingUrl?: string;
       callDurationSecs?: number;
     }) => {

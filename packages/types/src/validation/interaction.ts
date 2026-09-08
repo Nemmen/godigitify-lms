@@ -5,6 +5,7 @@ import { InteractionType } from '../enums'
 export const CreateInteractionSchema = z.object({
   type: z.nativeEnum(InteractionType),
   note: z.string().trim().max(5000).optional(),
+  scheduledAt: z.string().datetime().optional(),
   callRecordingUrl: optionalUploadUrl,
   callDurationSecs: z.number().int().min(0).max(86400).optional(),
   callDirection:    z.enum(['INBOUND', 'OUTBOUND']).optional(),

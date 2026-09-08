@@ -26,10 +26,9 @@ export function StatusTransition({
   const [note, setNote] = useState("");
   const transition = useTransitionLead(leadId);
 
-  // CLIENT transition is gated by ClientDeal — excluded here, handled via ClientDealForm
   const allValidNext = VALID_TRANSITIONS[currentStatus] ?? [];
   const clientReady = allValidNext.includes(LeadStatus.CLIENT);
-  const validNext = allValidNext.filter((s) => s !== LeadStatus.CLIENT);
+  const validNext = allValidNext;
 
   async function handleConfirm() {
     if (!selectedStatus) return;

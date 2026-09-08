@@ -126,20 +126,6 @@ export function FollowUpsDueToday() {
         </div>
       ) : (
         <div className="space-y-4 h-80 overflow-y-auto">
-          {/* Overdue */}
-          {overdueLeads.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-red-500 uppercase tracking-wide mb-2">
-                Overdue
-              </p>
-              <div className="space-y-2">
-                {overdueLeads.map((lead) => (
-                  <LeadRow key={lead.id} lead={lead} variant="overdue" />
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Upcoming (next 7 days) */}
           {upcomingLeads.length > 0 && (
             <div>
@@ -149,6 +135,20 @@ export function FollowUpsDueToday() {
               <div className="space-y-2">
                 {upcomingLeads.map((lead) => (
                   <LeadRow key={lead.id} lead={lead} variant="upcoming" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Overdue */}
+          {overdueLeads.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-red-500 uppercase tracking-wide mb-2">
+                Overdue
+              </p>
+              <div className="space-y-2">
+                {overdueLeads.map((lead) => (
+                  <LeadRow key={lead.id} lead={lead} variant="overdue" />
                 ))}
               </div>
             </div>
