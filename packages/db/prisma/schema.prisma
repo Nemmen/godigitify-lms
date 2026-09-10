@@ -19,6 +19,7 @@ enum Role {
 
 enum LeadStatus {
   NEW
+  SEVEN_DEVS_LEAD
   ATTEMPTED_CONTACT
   CONNECTED
   INTERESTED

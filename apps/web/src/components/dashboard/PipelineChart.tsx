@@ -13,6 +13,7 @@ import { LeadStatus } from "@lms/types";
 // forward stages first, then the terminal loss/duplicate states.
 const PIPELINE_ORDER: LeadStatus[] = [
   LeadStatus.NEW,
+  LeadStatus.SEVEN_DEVS_LEAD,
   LeadStatus.ATTEMPTED_CONTACT,
   LeadStatus.CONNECTED,
   LeadStatus.INTERESTED,

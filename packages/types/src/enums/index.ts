@@ -6,6 +6,7 @@ export enum Role {
 
 export enum LeadStatus {
   NEW = 'NEW',
+  SEVEN_DEVS_LEAD = 'SEVEN_DEVS_LEAD',
   ATTEMPTED_CONTACT = 'ATTEMPTED_CONTACT',
   CONNECTED = 'CONNECTED',
   INTERESTED = 'INTERESTED',
@@ -59,10 +60,16 @@ export enum TargetMetric {
 // This is the state machine contract — core enforces it, frontend reads it.
 export const VALID_TRANSITIONS: Record<LeadStatus, LeadStatus[]> = {
   [LeadStatus.NEW]: [
+    LeadStatus.SEVEN_DEVS_LEAD,
     LeadStatus.ATTEMPTED_CONTACT,
     LeadStatus.CONNECTED,
     LeadStatus.NOT_REACHABLE,
     LeadStatus.DUPLICATE,
+    LeadStatus.LOST,
+  ],
+  [LeadStatus.SEVEN_DEVS_LEAD]: [
+    LeadStatus.ATTEMPTED_CONTACT,
+    LeadStatus.CONNECTED,
     LeadStatus.LOST,
   ],
   [LeadStatus.ATTEMPTED_CONTACT]: [

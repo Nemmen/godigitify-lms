@@ -16,6 +16,13 @@ export const STATUS_CONFIG: Record<LeadStatus, StatusConfig> = {
     border: "border-blue-200",
     dot: "bg-blue-500",
   },
+  [LeadStatus.SEVEN_DEVS_LEAD]: {
+    label: "7devs lead",
+    color: "text-teal-700",
+    bg: "bg-teal-50",
+    border: "border-teal-200",
+    dot: "bg-teal-500",
+  },
   [LeadStatus.ATTEMPTED_CONTACT]: {
     label: "Attempted Contact",
     color: "text-orange-700",
