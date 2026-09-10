@@ -71,7 +71,8 @@ export function PipelineChart() {
   );
   const values = sorted.map((s) => s.count);
   const colors = sorted.map((s) => {
-    const dotClass = STATUS_CONFIG[s.status as LeadStatus]?.dot ?? "bg-gray-400";
+    const dotClass =
+      STATUS_CONFIG[s.status as LeadStatus]?.dot ?? "bg-gray-400";
     return STATUS_HEX[dotClass] ?? CHART_COLORS.primary;
   });
 
