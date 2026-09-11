@@ -89,8 +89,8 @@ export function normalizeIndianPhone(raw: string): string | null {
     cleaned = cleaned.slice(2);
   }
 
-  // Must be exactly 10 digits and start with 6-9
-  if (/^[6-9]\d{9}$/.test(cleaned)) return cleaned;
+  // Must be exactly 10 digits and start with 5-9
+  if (/^[5-9]\d{9}$/.test(cleaned)) return cleaned;
 
   return null;
 }

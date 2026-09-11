@@ -8,7 +8,7 @@
 //
 // min/max are national-significant-number lengths. Only India carries a
 // stricter `pattern` — it is the default market and the rule (mobiles start
-// 6-9) is stable; elsewhere a length range avoids rejecting valid numbers on a
+// 5-9) is stable; elsewhere a length range avoids rejecting valid numbers on a
 // rule we cannot keep current.
 
 export type Country = {
@@ -25,7 +25,7 @@ export type Country = {
 
 export const COUNTRIES: readonly Country[] = [
   // Default market first so it heads the picker.
-  { iso2: "IN", name: "India", dial: "+91", min: 10, max: 10, pattern: /^[6-9]\d{9}$/, example: "9876543210", primary: true },
+  { iso2: "IN", name: "India", dial: "+91", min: 10, max: 10, pattern: /^[5-9]\d{9}$/, example: "9876543210", primary: true },
 
   { iso2: "AE", name: "United Arab Emirates", dial: "+971", min: 9, max: 9, example: "501234567", primary: true },
   { iso2: "SA", name: "Saudi Arabia", dial: "+966", min: 9, max: 9, example: "501234567", primary: true },
@@ -147,7 +147,7 @@ export function nationalNumberError(dial: string): string {
   const country = countryByDial(dial);
   if (!country) return "Enter a valid phone number";
   if (country.iso2 === "IN") {
-    return "Enter a valid 10-digit Indian mobile number (starts with 6-9)";
+    return "Enter a valid 10-digit Indian mobile number (starts with 5-9)";
   }
   const digits =
     country.min === country.max

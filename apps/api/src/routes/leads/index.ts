@@ -327,7 +327,7 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
           fromFloat.startsWith("91") && fromFloat.length === 12
             ? fromFloat.slice(2)
             : fromFloat;
-        return /^[6-9]\d{9}$/.test(candidate) ? candidate : null;
+        return /^[5-9]\d{9}$/.test(candidate) ? candidate : null;
       }
 
       const { id: userId, branchId } = request.user;
@@ -393,7 +393,7 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
 
       for (const row of result.imported) {
         const phone = normalizeImportPhone(row.phone) ?? row.phone;
-        if (!/^[6-9]\d{9}$/.test(phone)) {
+        if (!/^[5-9]\d{9}$/.test(phone)) {
           importErrors.push({
             rowIndex: row.rowIndex,
             reason: `Invalid phone number: ${row.phone}`,
