@@ -3,12 +3,12 @@ import { config } from "../config";
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export type ParsedWhatsAppContact = {
-  name: string;       // Profile display name (may be empty)
-  phone: string;      // Normalized 10-digit Indian number
-  waid: string;       // Raw wa_id from Meta (e.g. 919876543210)
-  message: string;    // Message text or "[image]" etc.
-  msgType: string;    // text | image | audio | video | document | sticker | location | reaction
-  timestamp: string;  // Unix timestamp string
+  name: string; // Profile display name (may be empty)
+  phone: string; // Normalized 10-digit Indian number
+  waid: string; // Raw wa_id from Meta (e.g. 919876543210)
+  message: string; // Message text or "[image]" etc.
+  msgType: string; // text | image | audio | video | document | sticker | location | reaction
+  timestamp: string; // Unix timestamp string
 };
 
 // ── Phone normalization ────────────────────────────────────────────────────
@@ -41,7 +41,9 @@ export function normalizeIndianPhone(raw: string): string | null {
 
 // Meta's WhatsApp webhook structure is deeply nested.
 // Returns null for status updates (delivery/read receipts) and malformed payloads.
-export function parseWhatsAppWebhook(body: unknown): ParsedWhatsAppContact | null {
+export function parseWhatsAppWebhook(
+  body: unknown,
+): ParsedWhatsAppContact | null {
   try {
     const b = body as any;
     const value = b?.entry?.[0]?.changes?.[0]?.value;

@@ -40,9 +40,7 @@ export async function fetchLeadFromMeta(
     return null;
   }
 
-  const url = new URL(
-    `https://graph.facebook.com/v19.0/${leadgenId}`,
-  );
+  const url = new URL(`https://graph.facebook.com/v19.0/${leadgenId}`);
   url.searchParams.set(
     "fields",
     "field_data,created_time,ad_id,ad_name,form_id,form_name",
@@ -170,13 +168,8 @@ export async function fetchAllLeadsFromForm(
     return [];
   }
 
-  const url = new URL(
-    `https://graph.facebook.com/v19.0/${formId}/leads`,
-  );
-  url.searchParams.set(
-    "fields",
-    "field_data,created_time,ad_id,ad_name",
-  );
+  const url = new URL(`https://graph.facebook.com/v19.0/${formId}/leads`);
+  url.searchParams.set("fields", "field_data,created_time,ad_id,ad_name");
   url.searchParams.set("access_token", config.meta.pageAccessToken);
   if (since) url.searchParams.set("since", since);
 
@@ -240,10 +233,16 @@ export async function subscribePageToApp(): Promise<void> {
       signal: AbortSignal.timeout(10000),
     });
 
-    const json = (await res.json()) as { success?: boolean; error?: { message: string } };
+    const json = (await res.json()) as {
+      success?: boolean;
+      error?: { message: string };
+    };
 
     if (json.success) {
-      console.log("[meta-lead-form] Page subscribed to app for leadgen events ✓", { pageId });
+      console.log(
+        "[meta-lead-form] Page subscribed to app for leadgen events ✓",
+        { pageId },
+      );
     } else {
       console.error("[meta-lead-form] Page subscription failed", {
         pageId,

@@ -113,48 +113,40 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
       };
 
       if (!body.dealValue || body.dealValue <= 0) {
-        return reply
-          .status(400)
-          .send({
-            success: false,
-            error: {
-              code: "INVALID_INPUT",
-              message: "dealValue must be positive",
-            },
-          });
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "INVALID_INPUT",
+            message: "dealValue must be positive",
+          },
+        });
       }
       if (!Array.isArray(body.servicesSold) || body.servicesSold.length === 0) {
-        return reply
-          .status(400)
-          .send({
-            success: false,
-            error: {
-              code: "INVALID_INPUT",
-              message: "servicesSold must be a non-empty array",
-            },
-          });
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "INVALID_INPUT",
+            message: "servicesSold must be a non-empty array",
+          },
+        });
       }
       if (!body.contractStartDate) {
-        return reply
-          .status(400)
-          .send({
-            success: false,
-            error: {
-              code: "INVALID_INPUT",
-              message: "contractStartDate is required",
-            },
-          });
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "INVALID_INPUT",
+            message: "contractStartDate is required",
+          },
+        });
       }
       if (!body.quotationLink) {
-        return reply
-          .status(400)
-          .send({
-            success: false,
-            error: {
-              code: "INVALID_INPUT",
-              message: "quotationLink is required",
-            },
-          });
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "INVALID_INPUT",
+            message: "quotationLink is required",
+          },
+        });
       }
 
       const lead = await fastify.prisma.lead.findUnique({
@@ -168,12 +160,10 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
         },
       });
       if (!lead) {
-        return reply
-          .status(404)
-          .send({
-            success: false,
-            error: { code: "NOT_FOUND", message: "Lead not found" },
-          });
+        return reply.status(404).send({
+          success: false,
+          error: { code: "NOT_FOUND", message: "Lead not found" },
+        });
       }
 
       if (
@@ -188,12 +178,10 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
           },
         )
       ) {
-        return reply
-          .status(403)
-          .send({
-            success: false,
-            error: { code: "FORBIDDEN", message: "Access denied" },
-          });
+        return reply.status(403).send({
+          success: false,
+          error: { code: "FORBIDDEN", message: "Access denied" },
+        });
       }
 
       const deal = await fastify.prisma.clientDeal.upsert({
@@ -295,26 +283,22 @@ export async function leadRoutes(fastify: FastifyInstance): Promise<void> {
 
       const MAX_IMPORT_ROWS = 500;
       if (!Array.isArray(rows) || rows.length === 0) {
-        return reply
-          .status(400)
-          .send({
-            success: false,
-            error: {
-              code: "INVALID_INPUT",
-              message: "rows must be a non-empty array",
-            },
-          });
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "INVALID_INPUT",
+            message: "rows must be a non-empty array",
+          },
+        });
       }
       if (rows.length > MAX_IMPORT_ROWS) {
-        return reply
-          .status(400)
-          .send({
-            success: false,
-            error: {
-              code: "TOO_MANY_ROWS",
-              message: `Maximum ${MAX_IMPORT_ROWS} rows per import. Split into smaller batches.`,
-            },
-          });
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "TOO_MANY_ROWS",
+            message: `Maximum ${MAX_IMPORT_ROWS} rows per import. Split into smaller batches.`,
+          },
+        });
       }
 
       function normalizeImportPhone(raw: string): string | null {
