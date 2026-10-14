@@ -4,28 +4,31 @@ import { QUEUES } from "../plugins/bullmq";
 // Default: 6:30 PM IST = 13:00 UTC
 const DEFAULT_HOUR_UTC   = parseInt(process.env["DAILY_REPORT_HOUR_UTC"]   ?? "13", 10);
 const DEFAULT_MINUTE_UTC = parseInt(process.env["DAILY_REPORT_MINUTE_UTC"] ?? "0",  10);
+const IST_OFFSET_MS      = (5 * 60 + 30) * 60 * 1000;
 
 export function startDailyReportCron(fastify: FastifyInstance): void {
   const run = async (): Promise<void> => {
     try {
+      // "Today" is the IST calendar day, regardless of the server's timezone
       const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const istNow     = new Date(now.getTime() + IST_OFFSET_MS);
+      const todayStart = new Date(
+        Date.UTC(istNow.getUTCFullYear(), istNow.getUTCMonth(), istNow.getUTCDate()) - IST_OFFSET_MS,
+      );
       const todayEnd   = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+      const dateKey    = istNow.toISOString().slice(0, 10);
 
-      const [employees, admins] = await Promise.all([
-        fastify.prisma.user.findMany({
-          where: { role: "EMPLOYEE", isActive: true },
-          select: { id: true, name: true, email: true },
-        }),
-        fastify.prisma.user.findMany({
-          where: { role: { in: ["ADMIN", "SUB_ADMIN"] }, isActive: true },
-          select: { id: true, name: true, email: true },
-        }),
-      ]);
+      // Every active user is tracked — admins/sub-admins who make calls must show up too
+      const users = await fastify.prisma.user.findMany({
+        where: { isActive: true },
+        select: { id: true, name: true, email: true, role: true },
+      });
+      const employees = users.filter((u) => u.role === "EMPLOYEE");
+      const admins    = users.filter((u) => u.role === "ADMIN" || u.role === "SUB_ADMIN");
 
-      if (employees.length === 0) return;
+      if (users.length === 0) return;
 
-      const employeeIds = employees.map((e) => e.id);
+      const employeeIds = users.map((e) => e.id);
 
       const [todayInteractions, todayConfirmed, todayNewLeads, overdueLeads] =
         await Promise.all([
@@ -64,17 +67,19 @@ export function startDailyReportCron(fastify: FastifyInstance): void {
         ]);
 
       const dateLabel = todayStart.toLocaleDateString("en-IN", {
+        timeZone: "Asia/Kolkata",
         weekday: "long",
         day: "numeric",
         month: "long",
         year: "numeric",
       });
 
-      // Build per-employee stats
-      const employeeStats = employees.map((emp) => {
+      // Build per-user stats
+      const allStats = users.map((emp) => {
         const empInteractions = todayInteractions.filter((i) => i.userId === emp.id);
         const empCalls        = empInteractions.filter((i) => i.type === "CALL");
         return {
+          id:                emp.id,
           name:              emp.name,
           email:             emp.email,
           callCount:         empCalls.length,
@@ -86,12 +91,22 @@ export function startDailyReportCron(fastify: FastifyInstance): void {
         };
       });
 
-      // Queue individual reports for each employee
-      for (const stat of employeeStats) {
+      // Team report: all employees, plus any admin/sub-admin who had activity today
+      const employeeIdSet = new Set(employees.map((e) => e.id));
+      const employeeStats = allStats.filter(
+        (s) =>
+          employeeIdSet.has(s.id) ||
+          s.callCount > 0 ||
+          s.leadsInteracted > 0 ||
+          s.confirmedToday > 0,
+      );
+
+      // Queue individual reports for every active user (employees, sub-admins and admins)
+      for (const stat of allStats) {
         await fastify.queues[QUEUES.NOTIFICATIONS].add(
           "daily-employee-report",
           { ...stat, date: dateLabel },
-          { jobId: `daily-emp-${stat.email}-${todayStart.toISOString().slice(0, 10)}`, attempts: 2 },
+          { jobId: `daily-emp-${stat.email}-${dateKey}`, attempts: 2 },
         );
       }
 
@@ -100,11 +115,11 @@ export function startDailyReportCron(fastify: FastifyInstance): void {
         await fastify.queues[QUEUES.NOTIFICATIONS].add(
           "admin-daily-report",
           { to: admin.email, adminName: admin.name, date: dateLabel, employees: employeeStats },
-          { jobId: `daily-admin-${admin.email}-${todayStart.toISOString().slice(0, 10)}`, attempts: 2 },
+          { jobId: `daily-admin-${admin.email}-${dateKey}`, attempts: 2 },
         );
       }
 
-      fastify.log.info(`Daily report cron: queued ${employeeStats.length} employee + ${admins.length} admin reports`);
+      fastify.log.info(`Daily report cron: queued ${allStats.length} personal + ${admins.length} team reports`);
     } catch (error) {
       fastify.log.error({ error }, "Daily report cron failed");
     }
